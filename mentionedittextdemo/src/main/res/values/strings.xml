@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">MentionEditTextDemo</string>
+    <string name="addmentiontext">添加MentionText</string>
+    <string name="printmentiontext">打印MentionText</string>
+</resources>
