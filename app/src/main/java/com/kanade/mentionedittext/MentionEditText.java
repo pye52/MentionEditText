@@ -1,6 +1,5 @@
 package com.kanade.mentionedittext;
 
-import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -58,6 +57,7 @@ public class MentionEditText extends AppCompatEditText implements TextWatcher {
         mMentionTextColor = typedArray.getColor(R.styleable.MentionEditText_mentionColor, Color.RED);
         setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         typedArray.recycle();
+        addTextChangedListener(this);
     }
 
     public void setListener(MentionTextChangedListener listener) {
@@ -177,7 +177,7 @@ public class MentionEditText extends AppCompatEditText implements TextWatcher {
     /**
      * 输入框内容发生变化时，需要重新构建range列表
      * @param start 变化开始位置
-     * @param count 发生变化的字符个数
+     * @param count 产生变化的字符个数
      * @param after 变化后的字符个数
      */
     private void mentionTextChanged(int start, int count, int after) {
@@ -268,37 +268,19 @@ public class MentionEditText extends AppCompatEditText implements TextWatcher {
 
     @Override
     public boolean onTextContextMenuItem(int id) {
-        Editable edit = getEditableText();
-        int start = getSelectionStart();
-        int end = getSelectionEnd();
         switch (id) {
-            case android.R.id.cut:
-                // 重建选择部分的range列表
-                mentionTextChanged(start, end - start, start);
-            case android.R.id.copy:
-                copyMentionText(start, end);
-                return true;
             case android.R.id.paste:
-                pasteMentionText(start, end);
                 if (listener != null) {
-                    listener.onTextPaste(getEditableText(), );
+                    Editable edit = getEditableText();
+                    int start = getSelectionStart();
+                    int end = getSelectionEnd();
+                    ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    CharSequence c = clipboard.getPrimaryClip().getItemAt(0).getText();
+                    listener.onTextPaste(edit, c, start, end);
                 }
                 return true;
         }
         return super.onTextContextMenuItem(id);
-    }
-
-    private void copyMentionText(int start, int end) {
-        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        String selText = getText().subSequence(start, end).toString();
-        clipboard.setPrimaryClip(ClipData.newPlainText("text", selText));
-    }
-
-    private void pasteMentionText(int start, int end) {
-        ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        CharSequence c = clipboard.getPrimaryClip().getItemAt(0).getText();
-
-        listener.onTextPaste(edit, c, start, end);
     }
 
     // handle the deletion action for mention string, such as '@test'
