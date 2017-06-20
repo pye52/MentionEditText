@@ -8,6 +8,4 @@ public interface MentionTextChangedListener {
     void onTextChanged(CharSequence s, int start, int before, int count);
 
     void afterTextChanged(Editable s);
-
-    void onTextPaste(Editable edit, CharSequence c, int start, int end);
 }
