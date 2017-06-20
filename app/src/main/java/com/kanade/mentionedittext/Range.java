@@ -17,16 +17,10 @@ class Range implements Comparable<Range>{
         this.to = to;
     }
 
-    /**
-     * [start, end]是否包含在range内
-     */
     public boolean isWrapped(int start, int end) {
         return from >= start && to <= end;
     }
 
-    /**
-     * range是否被包含在[start, end]内
-     */
     public boolean isWrappedBy(int start, int end) {
         return (start > from && start < to) || (end > from && end < to);
     }

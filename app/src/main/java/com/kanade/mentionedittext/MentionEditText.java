@@ -1,6 +1,5 @@
 package com.kanade.mentionedittext;
 
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -28,14 +27,14 @@ import java.util.Iterator;
  * Created by kanade on 2016/9/1.
  */
 public class MentionEditText extends AppCompatEditText implements TextWatcher {
-    private Runnable mAction;
+    protected Runnable mAction;
 
-    private int mMentionTextColor;
+    protected int mMentionTextColor;
 
-    private boolean mIsSelected;
-    private Range mLastSelectedRange;
-    private ArrayList<Range> mRangeArrayList;
-    private MentionTextChangedListener listener;
+    protected boolean mIsSelected;
+    protected Range mLastSelectedRange;
+    protected ArrayList<Range> mRangeArrayList;
+    protected MentionTextChangedListener listener;
 
     public MentionEditText(Context context) {
         super(context);
@@ -180,7 +179,7 @@ public class MentionEditText extends AppCompatEditText implements TextWatcher {
      * @param count 产生变化的字符个数
      * @param after 变化后的字符个数
      */
-    private void mentionTextChanged(int start, int count, int after) {
+    protected void mentionTextChanged(int start, int count, int after) {
         Editable editable = getText();
         // 在末尾增加就不需要处理了
         if (start >= editable.length()) {
@@ -264,23 +263,6 @@ public class MentionEditText extends AppCompatEditText implements TextWatcher {
             }
         }
         return null;
-    }
-
-    @Override
-    public boolean onTextContextMenuItem(int id) {
-        switch (id) {
-            case android.R.id.paste:
-                if (listener != null) {
-                    Editable edit = getEditableText();
-                    int start = getSelectionStart();
-                    int end = getSelectionEnd();
-                    ClipboardManager clipboard = (ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
-                    CharSequence c = clipboard.getPrimaryClip().getItemAt(0).getText();
-                    listener.onTextPaste(edit, c, start, end);
-                }
-                return true;
-        }
-        return super.onTextContextMenuItem(id);
     }
 
     // handle the deletion action for mention string, such as '@test'
