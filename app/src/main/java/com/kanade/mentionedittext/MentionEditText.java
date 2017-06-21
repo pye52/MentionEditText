@@ -154,11 +154,11 @@ public class MentionEditText extends AppCompatEditText {
     public void addMentionText(int uid, String name, boolean charBefore) {
         Editable editable = getText();
         int start = getSelectionStart();
+        int end = start + name.length();
+        editable.insert(start, name + " ");
         if (charBefore) {
             start--;
         }
-        int end = start + name.length();
-        editable.insert(start, name + " ");
         editable.setSpan(new ForegroundColorSpan(mMentionTextColor), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         mRangeArrayList.add(new Range(uid, name, start, end));
         setSelection(end + 1);
