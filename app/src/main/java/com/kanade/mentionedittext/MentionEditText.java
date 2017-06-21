@@ -10,6 +10,7 @@ import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
+//import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -26,7 +27,7 @@ import java.util.Iterator;
  * @author 团子吃蛋挞
  * Created by kanade on 2016/9/1.
  */
-public class MentionEditText extends AppCompatEditText implements TextWatcher {
+public class MentionEditText extends AppCompatEditText {
     protected Runnable mAction;
 
     protected int mMentionTextColor;
@@ -51,12 +52,37 @@ public class MentionEditText extends AppCompatEditText implements TextWatcher {
     }
 
     private void init(AttributeSet attrs) {
+        setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.MentionEditText);
         mRangeArrayList = new ArrayList<>();
         mMentionTextColor = typedArray.getColor(R.styleable.MentionEditText_mentionColor, Color.RED);
-        setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         typedArray.recycle();
-        addTextChangedListener(this);
+        addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                mentionTextChanged(start, count, after);
+                if (listener != null) {
+                    listener.beforeTextChanged(s, start, count, after);
+                }
+//                Log.d("MentionEdit", "beforeTextChanged");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (listener != null) {
+                    listener.onTextChanged(s, start, before, count);
+                }
+//                Log.d("MentionEdit", "onTextChanged");
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (listener != null) {
+                    listener.afterTextChanged(s);
+                }
+//                Log.d("MentionEdit", "afterTextChanged");
+            }
+        });
     }
 
     public void setListener(MentionTextChangedListener listener) {
@@ -217,28 +243,6 @@ public class MentionEditText extends AppCompatEditText implements TextWatcher {
     public void clear() {
         mRangeArrayList.clear();
         setText("");
-    }
-
-    @Override
-    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        mentionTextChanged(start, count, after);
-        if (listener != null) {
-            listener.beforeTextChanged(s, start, count, after);
-        }
-    }
-
-    @Override
-    public void afterTextChanged(Editable s) {
-        if (listener != null) {
-            listener.afterTextChanged(s);
-        }
-    }
-
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (listener != null) {
-            listener.onTextChanged(s, start, before, count);
-        }
     }
 
     private Range getRangeOfClosestMentionString(int selStart, int selEnd) {
